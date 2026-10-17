@@ -20,6 +20,9 @@ keys).
 Dates are stored in
 `plugins/configurations/Jellyfin.Plugin.FixDateAdded.json`.
 
+Only upgrades that happen **after** the plugin is installed are covered.
+Media upgraded before install is unaffected (those titles were never recorded).
+
 ## Install from catalog
 
 1. In Jellyfin: **Dashboard → Plugins → Repositories → +**
