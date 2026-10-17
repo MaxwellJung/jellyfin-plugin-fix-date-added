@@ -4,7 +4,9 @@ A Jellyfin plugin that keeps a movie's or episode's original "Date added"
 when Radarr or Sonarr upgrade its file, so upgrades don't jump to the top of
 "Recently Added". Plex behaves this way already.
 
-Status: in development, not ready for use.
+Status: experimental — use at your own risk.
+
+> **Note:** This plugin is heavily vibe coded. Treat it accordingly.
 
 ## How it works
 
