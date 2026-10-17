@@ -54,6 +54,11 @@ and [Conventional Commits](https://www.conventionalcommits.org/).
 4. CI uploads the plugin zip and pushes a `manifest.json` update to `main`
    so the Jellyfin catalog refreshes — one merge is the whole release.
 
+release-please always uses **3-part semver** in git (`0.1.1`, tag `v0.1.1`).
+At publish time CI maps that to Jellyfin’s **4-part** form (`0.1.1.0`) for the
+assembly, zip `meta.json`, and catalog entry only — so uninstall matches the
+installed folder.
+
 ### One-time setup (personal repo)
 
 GitHub does not let `github-actions[bot]` bypass required PRs on user-owned
@@ -69,8 +74,9 @@ repos, so releases use an owner PAT:
    administrators”** so that PAT can push the catalog commit. Everyone else
    still needs a PR; only admins (and that token acting as you) can bypass.
 
-`fix:` → patch, `feat:` → minor, `BREAKING CHANGE` / `feat!:` → major
-(while below 1.0.0, `feat` bumps minor and `fix` bumps patch by default).
+`fix:` → patch, `feat:` → minor, `BREAKING CHANGE` / `feat!:` → major.
+While below 1.0.0, `feat` also bumps **patch** and breaking changes bump
+**minor** (`bump-patch-for-minor-pre-major` / `bump-minor-pre-major`).
 
 ## Test
 

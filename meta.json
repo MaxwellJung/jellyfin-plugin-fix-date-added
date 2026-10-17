@@ -5,7 +5,7 @@
   "overview": "Keep original Date added across Radarr/Sonarr file upgrades",
   "owner": "MaxwellJung",
   "category": "General",
-  "version": "0.1.0.0",
+  "version": "0.1.0",
   "targetAbi": "10.11.10.0",
   "framework": "net9.0",
   "changelog": "See GitHub releases.",

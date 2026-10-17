@@ -1,7 +1,7 @@
 <Project>
     <PropertyGroup>
+        <!-- 3-part semver; release-please bumps this. Assembly/File append .0 for Jellyfin. -->
         <Version>0.1.0</Version>
-        <!-- Jellyfin plugin folders/uninstall use the 4-part assembly version. -->
         <AssemblyVersion>$(Version).0</AssemblyVersion>
         <FileVersion>$(Version).0</FileVersion>
     </PropertyGroup>
