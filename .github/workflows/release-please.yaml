@@ -3,8 +3,9 @@ name: release-please
 # Opens/updates a Release PR from conventional commits on main.
 # Merging that PR is the "release button": it tags, creates a GitHub Release,
 # then this workflow packages the Jellyfin plugin zip and pushes an updated
-# manifest.json to main (requires Allow github-actions[bot] to bypass
-# required pull requests on the main branch protection rule).
+# manifest.json to main. Needs secret RELEASE_PLEASE_TOKEN (fine-grained PAT)
+# and branch protection with "Include administrators" disabled so that PAT
+# can push the catalog commit to main on a personal repo.
 on:
   push:
     branches: [main]
@@ -28,7 +29,8 @@ jobs:
       - uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4.4.1
         id: release
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # Owner PAT so Release PRs get CI and the catalog push can land on main.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
@@ -80,7 +82,7 @@ jobs:
         with:
           ref: main
           path: main-branch
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
 
       - name: Push manifest.json update to main
         working-directory: main-branch

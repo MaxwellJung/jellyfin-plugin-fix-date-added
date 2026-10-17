@@ -52,11 +52,22 @@ and [Conventional Commits](https://www.conventionalcommits.org/).
 2. After merges to `main`, release-please opens or updates a **Release PR**.
 3. Merge that Release PR to cut the next semver tag and GitHub Release.
 4. CI uploads the plugin zip and pushes a `manifest.json` update to `main`
-   so the Jellyfin catalog refreshes — no second PR.
+   so the Jellyfin catalog refreshes — one merge is the whole release.
 
-Branch protection on `main` must allow `github-actions[bot]` to **bypass
-required pull requests** (Settings → Branches → your `main` rule → Bypass
-list). Without that, step 4 fails after the zip upload.
+### One-time setup (personal repo)
+
+GitHub does not let `github-actions[bot]` bypass required PRs on user-owned
+repos, so releases use an owner PAT:
+
+1. Create a **fine-grained personal access token**
+   (https://github.com/settings/personal-access-tokens) for this repository
+   only, with **Contents: Read and write** and **Pull requests: Read and
+   write**. Set an expiry you’ll remember to rotate.
+2. Add it as a repository secret named `RELEASE_PLEASE_TOKEN`
+   (Settings → Secrets and variables → Actions).
+3. On the `main` branch protection rule, **uncheck “Include
+   administrators”** so that PAT can push the catalog commit. Everyone else
+   still needs a PR; only admins (and that token acting as you) can bypass.
 
 `fix:` → patch, `feat:` → minor, `BREAKING CHANGE` / `feat!:` → major
 (while below 1.0.0, `feat` bumps minor and `fix` bumps patch by default).
