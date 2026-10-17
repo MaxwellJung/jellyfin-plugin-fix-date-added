@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/MaxwellJung/jellyfin-plugin-fix-date-added/compare/v0.1.1...v0.1.2) (2026-10-17)
+
+
+### Bug Fixes
+
+* **ci:** grant CodeQL security-events on main pushes ([#24](https://github.com/MaxwellJung/jellyfin-plugin-fix-date-added/issues/24)) ([7dff40a](https://github.com/MaxwellJung/jellyfin-plugin-fix-date-added/commit/7dff40a1e242b3e4a2a6ebca7d875adfb04263b0))
+
 ## [0.1.1](https://github.com/MaxwellJung/jellyfin-plugin-fix-date-added/compare/v0.1.0...v0.1.1) (2026-10-17)
 
 
