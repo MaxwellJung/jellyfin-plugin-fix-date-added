@@ -18,7 +18,20 @@ keys).
 Dates are stored in
 `plugins/configurations/Jellyfin.Plugin.FixDateAdded.json`.
 
-## Build and install
+## Install from catalog
+
+1. In Jellyfin: **Dashboard → Plugins → Repositories → +**
+2. Add repository URL:
+
+   ```text
+   https://raw.githubusercontent.com/MaxwellJung/jellyfin-plugin-fix-date-added/main/manifest.json
+   ```
+
+3. **Catalog** → find **Fix Date Added** → Install → restart Jellyfin.
+
+Versions appear after a GitHub release is published (see below).
+
+## Build and install manually
 
 Requires Jellyfin 10.11 and the .NET SDK.
 
@@ -28,6 +41,18 @@ dotnet build -c Release
 
 Copy `Jellyfin.Plugin.FixDateAdded/bin/Release/net9.0/Jellyfin.Plugin.FixDateAdded.dll`
 to a `FixDateAdded` folder in Jellyfin's `plugins` folder and restart Jellyfin.
+
+## Publish a release
+
+Tag a four-part version and push (or run the **release** workflow manually):
+
+```bash
+git tag v0.1.0.0
+git push origin v0.1.0.0
+```
+
+CI builds the plugin, uploads a zip to a GitHub Release, and prepends that
+version to `manifest.json` on `main`.
 
 ## Test
 
