@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Hermetic regression test: build plugin, run throwaway Jellyfin (no network), fake upgrades.
-# Needs Docker and Python 3.
+# Build plugin, run throwaway Jellyfin (no network), fake upgrades. Needs Docker + Python 3.
 set -euo pipefail
 
 sdk_image=mcr.microsoft.com/dotnet/sdk:9.0@sha256:2f5eb32870b4c0074a3d5b5191a03553bcab7b74463a76a7c0a5f3ef65c90fe5

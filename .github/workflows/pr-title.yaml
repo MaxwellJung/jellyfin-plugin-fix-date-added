@@ -1,6 +1,6 @@
 name: pr title
 
-# Release-please changelogs require conventional commit subjects on squash merges.
+# Squash merges use the PR title; release-please needs conventional subjects.
 on:
   pull_request:
     types: [opened, edited, synchronize, reopened]
@@ -16,6 +16,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          # Allow release-please's "chore(main): release X.Y.Z" titles.
           requireScope: false
 

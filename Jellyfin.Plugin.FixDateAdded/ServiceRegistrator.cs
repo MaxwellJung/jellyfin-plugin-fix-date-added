@@ -4,9 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Jellyfin.Plugin.FixDateAdded;
 
-/// <summary>
-/// Registers the plugin's services.
-/// </summary>
+/// <summary>DI registration for the plugin.</summary>
 public class ServiceRegistrator : IPluginServiceRegistrator
 {
     /// <inheritdoc />

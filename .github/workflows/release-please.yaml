@@ -1,11 +1,8 @@
 name: release-please
 
-# Opens/updates a Release PR from conventional commits on main.
-# Merging that PR is the "release button": it tags, creates a GitHub Release,
-# then this workflow packages the Jellyfin plugin zip and pushes an updated
-# manifest.json to main. Needs secret RELEASE_PLEASE_TOKEN (fine-grained PAT)
-# and branch protection with "Include administrators" disabled so that PAT
-# can push the catalog commit to main on a personal repo.
+# Merge the Release PR to tag + GitHub Release; then this job zips the plugin
+# and pushes catalog manifest.json (needs RELEASE_PLEASE_TOKEN; admins not
+# enforced on main). Git keeps 3-part semver; publish maps to Jellyfin X.Y.Z.0.
 on:
   push:
     branches: [main]
@@ -29,7 +26,6 @@ jobs:
       - uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4.4.1
         id: release
         with:
-          # Owner PAT so Release PRs get CI and the catalog push can land on main.
           token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
@@ -47,30 +43,45 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
+      - name: Resolve versions
+        id: ver
+        run: |
+          set -euo pipefail
+          VERSION="${{ needs.release-please.outputs.version }}"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Expected 3-part semver X.Y.Z, got: ${VERSION}" >&2
+            exit 1
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "jf_version=${VERSION}.0" >> "$GITHUB_OUTPUT"
+
       - name: Build
         run: |
-          VERSION="${{ needs.release-please.outputs.version }}"
+          VERSION="${{ steps.ver.outputs.version }}"
+          JF_VERSION="${{ steps.ver.outputs.jf_version }}"
           dotnet build Jellyfin.Plugin.FixDateAdded -c Release \
             -p:Version="${VERSION}" \
-            -p:AssemblyVersion="${VERSION}.0" \
-            -p:FileVersion="${VERSION}.0" \
+            -p:AssemblyVersion="${JF_VERSION}" \
+            -p:FileVersion="${JF_VERSION}" \
             -p:RestoreLockedMode=true -v q -nologo
 
       - name: Package
         id: pkg
         run: |
           set -euo pipefail
-          VERSION="${{ needs.release-please.outputs.version }}"
+          VERSION="${{ steps.ver.outputs.version }}"
+          JF_VERSION="${{ steps.ver.outputs.jf_version }}"
           TAG="${{ needs.release-please.outputs.tag_name }}"
           STAGE=$(mktemp -d)
           cp Jellyfin.Plugin.FixDateAdded/bin/Release/net9.0/Jellyfin.Plugin.FixDateAdded.dll "$STAGE/"
-          jq --arg v "$VERSION" '.version=$v' meta.json > "$STAGE/meta.json"
-          ZIP="Jellyfin.Plugin.FixDateAdded_${VERSION}.zip"
+          jq --arg v "$JF_VERSION" '.version=$v' meta.json > "$STAGE/meta.json"
+          ZIP="Jellyfin.Plugin.FixDateAdded_${JF_VERSION}.zip"
           (cd "$STAGE" && zip -q -r "$OLDPWD/$ZIP" .)
           echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
           echo "checksum=$(md5sum "$ZIP" | awk '{print $1}')" >> "$GITHUB_OUTPUT"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "version=$JF_VERSION" >> "$GITHUB_OUTPUT"
+          echo "semver=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Upload zip to GitHub Release
         env:
@@ -88,14 +99,14 @@ jobs:
         working-directory: main-branch
         run: |
           set -euo pipefail
-          VERSION="${{ steps.pkg.outputs.version }}"
+          JF_VERSION="${{ steps.pkg.outputs.version }}"
           TAG="${{ steps.pkg.outputs.tag }}"
           CHKSUM="${{ steps.pkg.outputs.checksum }}"
           ZIP="${{ steps.pkg.outputs.zip }}"
           SOURCE_URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/${ZIP}"
           TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           jq \
-            --arg v "$VERSION" \
+            --arg v "$JF_VERSION" \
             --arg c "$CHKSUM" \
             --arg s "$SOURCE_URL" \
             --arg t "$TIMESTAMP" \

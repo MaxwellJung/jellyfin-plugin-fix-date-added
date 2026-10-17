@@ -15,9 +15,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Jellyfin.Plugin.FixDateAdded;
 
-/// <summary>
-/// Keeps the earliest date added of each movie and episode, and restores it when an upgrade creates a new item.
-/// </summary>
+/// <summary>Remembers earliest DateCreated and restores it after upgrades.</summary>
 internal sealed class DateKeeper : IHostedService
 {
     private readonly ILibraryManager _libraryManager;
