@@ -44,11 +44,12 @@ to a `FixDateAdded` folder in Jellyfin's `plugins` folder and restart Jellyfin.
 
 ## Publish a release
 
-Tag a four-part version and push (or run the **release** workflow manually):
+Tag a semver (`major.minor.patch`) and push (or run the **release** workflow
+manually):
 
 ```bash
-git tag v0.1.0.0
-git push origin v0.1.0.0
+git tag v0.1.0
+git push origin v0.1.0
 ```
 
 CI builds the plugin, uploads a zip to a GitHub Release, and prepends that
