@@ -4,7 +4,9 @@ A Jellyfin plugin that keeps a movie's or episode's original "Date added"
 when Radarr or Sonarr upgrade its file, so upgrades don't jump to the top of
 "Recently Added". Plex behaves this way already.
 
-Status: in development, not ready for use.
+Status: experimental — use at your own risk.
+
+> **Note:** This plugin is heavily vibe coded. Treat it accordingly.
 
 ## How it works
 
@@ -29,8 +31,6 @@ Dates are stored in
 
 3. **Catalog** → find **Fix Date Added** → Install → restart Jellyfin.
 
-Versions appear after a GitHub release is published (see below).
-
 ## Build and install manually
 
 Requires Jellyfin 10.11 and the .NET SDK.
@@ -42,18 +42,35 @@ dotnet build -c Release
 Copy `Jellyfin.Plugin.FixDateAdded/bin/Release/net9.0/Jellyfin.Plugin.FixDateAdded.dll`
 to a `FixDateAdded` folder in Jellyfin's `plugins` folder and restart Jellyfin.
 
-## Publish a release
+## Releases
 
-Tag a semver (`major.minor.patch`) and push (or run the **release** workflow
-manually):
+Releases use [release-please](https://github.com/googleapis/release-please)
+and [Conventional Commits](https://www.conventionalcommits.org/).
 
-```bash
-git tag v0.1.0
-git push origin v0.1.0
-```
+1. Open PRs whose **title** starts with `feat:`, `fix:`, `chore:`, etc.
+   (CI enforces this; squash merges use the PR title as the commit subject.)
+2. After merges to `main`, release-please opens or updates a **Release PR**.
+3. Merge that Release PR to cut the next semver tag and GitHub Release.
+4. CI uploads the plugin zip and pushes a `manifest.json` update to `main`
+   so the Jellyfin catalog refreshes — one merge is the whole release.
 
-CI builds the plugin, uploads a zip to a GitHub Release, and opens a PR that
-prepends that version to `manifest.json` (merge it so the catalog updates).
+### One-time setup (personal repo)
+
+GitHub does not let `github-actions[bot]` bypass required PRs on user-owned
+repos, so releases use an owner PAT:
+
+1. Create a **fine-grained personal access token**
+   (https://github.com/settings/personal-access-tokens) for this repository
+   only, with **Contents: Read and write** and **Pull requests: Read and
+   write**. Set an expiry you’ll remember to rotate.
+2. Add it as a repository secret named `RELEASE_PLEASE_TOKEN`
+   (Settings → Secrets and variables → Actions).
+3. On the `main` branch protection rule, **uncheck “Include
+   administrators”** so that PAT can push the catalog commit. Everyone else
+   still needs a PR; only admins (and that token acting as you) can bypass.
+
+`fix:` → patch, `feat:` → minor, `BREAKING CHANGE` / `feat!:` → major
+(while below 1.0.0, `feat` bumps minor and `fix` bumps patch by default).
 
 ## Test
 
