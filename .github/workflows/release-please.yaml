@@ -60,17 +60,20 @@ jobs:
         id: pkg
         run: |
           set -euo pipefail
+          # Semver from release-please (e.g. 0.1.1); Jellyfin needs 4-part (0.1.1.0)
+          # or uninstall looks for the assembly version folder and fails.
           VERSION="${{ needs.release-please.outputs.version }}"
+          JF_VERSION="${VERSION}.0"
           TAG="${{ needs.release-please.outputs.tag_name }}"
           STAGE=$(mktemp -d)
           cp Jellyfin.Plugin.FixDateAdded/bin/Release/net9.0/Jellyfin.Plugin.FixDateAdded.dll "$STAGE/"
-          jq --arg v "$VERSION" '.version=$v' meta.json > "$STAGE/meta.json"
-          ZIP="Jellyfin.Plugin.FixDateAdded_${VERSION}.zip"
+          jq --arg v "$JF_VERSION" '.version=$v' meta.json > "$STAGE/meta.json"
+          ZIP="Jellyfin.Plugin.FixDateAdded_${JF_VERSION}.zip"
           (cd "$STAGE" && zip -q -r "$OLDPWD/$ZIP" .)
           echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
           echo "checksum=$(md5sum "$ZIP" | awk '{print $1}')" >> "$GITHUB_OUTPUT"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "version=$JF_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Upload zip to GitHub Release
         env:
