@@ -6,11 +6,9 @@ using MediaBrowser.Model.Serialization;
 
 namespace Jellyfin.Plugin.FixDateAdded;
 
-public class Plugin : BasePlugin<BasePluginConfiguration>
-{
+public class Plugin : BasePlugin<BasePluginConfiguration> {
     public Plugin(IApplicationPaths applicationPaths, IXmlSerializer xmlSerializer)
-        : base(applicationPaths, xmlSerializer)
-    {
+        : base(applicationPaths, xmlSerializer) {
     }
 
     public override string Name => "Fix Date Added";
