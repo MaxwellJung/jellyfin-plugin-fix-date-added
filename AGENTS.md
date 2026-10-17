@@ -11,6 +11,7 @@ Also:
 - Only implement what was explicitly requested. Do not add extras (telemetry, configurability, polish, alternate code paths, speculative error handling).
 - If something extra seems necessary, **ask and get confirmation before adding it** to the codebase.
 - Prefer deleting or not writing code over clever generality.
+- **Minimize entropy** — Prefer the existing pattern over a new one. Don’t introduce a second way to do the same thing, scatter one-off conventions, or leave dead/parallel paths. A change should leave the tree more uniform, not more varied.
 
 # Comments
 
