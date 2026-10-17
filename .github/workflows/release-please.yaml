@@ -1,8 +1,7 @@
 name: release-please
 
-# Merge the Release PR to tag + GitHub Release; then this job zips the plugin
-# and pushes catalog manifest.json (needs RELEASE_PLEASE_TOKEN; admins not
-# enforced on main). Git keeps 3-part semver; publish maps to Jellyfin X.Y.Z.0.
+# Merge Release PR → tag + GitHub Release → zip + catalog push (RELEASE_PLEASE_TOKEN).
+# Git: 3-part semver. Jellyfin catalog/zip: X.Y.Z.0.
 on:
   push:
     branches: [main]
@@ -43,8 +42,8 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
-      - name: Resolve versions
-        id: ver
+      - name: Build and package
+        id: pkg
         run: |
           set -euo pipefail
           VERSION="${{ needs.release-please.outputs.version }}"
@@ -52,26 +51,13 @@ jobs:
             echo "Expected 3-part semver X.Y.Z, got: ${VERSION}" >&2
             exit 1
           fi
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "jf_version=${VERSION}.0" >> "$GITHUB_OUTPUT"
-
-      - name: Build
-        run: |
-          VERSION="${{ steps.ver.outputs.version }}"
-          JF_VERSION="${{ steps.ver.outputs.jf_version }}"
+          JF_VERSION="${VERSION}.0"
+          TAG="${{ needs.release-please.outputs.tag_name }}"
           dotnet build Jellyfin.Plugin.FixDateAdded -c Release \
             -p:Version="${VERSION}" \
             -p:AssemblyVersion="${JF_VERSION}" \
             -p:FileVersion="${JF_VERSION}" \
             -p:RestoreLockedMode=true -v q -nologo
-
-      - name: Package
-        id: pkg
-        run: |
-          set -euo pipefail
-          VERSION="${{ steps.ver.outputs.version }}"
-          JF_VERSION="${{ steps.ver.outputs.jf_version }}"
-          TAG="${{ needs.release-please.outputs.tag_name }}"
           STAGE=$(mktemp -d)
           cp Jellyfin.Plugin.FixDateAdded/bin/Release/net9.0/Jellyfin.Plugin.FixDateAdded.dll "$STAGE/"
           jq --arg v "$JF_VERSION" '.version=$v' meta.json > "$STAGE/meta.json"
@@ -81,21 +67,19 @@ jobs:
           echo "checksum=$(md5sum "$ZIP" | awk '{print $1}')" >> "$GITHUB_OUTPUT"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "version=$JF_VERSION" >> "$GITHUB_OUTPUT"
-          echo "semver=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Upload zip to GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release upload "${{ steps.pkg.outputs.tag }}" "${{ steps.pkg.outputs.zip }}" --clobber
 
-      - name: Checkout main for manifest update
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: main
           path: main-branch
           token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
 
-      - name: Push manifest.json update to main
+      - name: Push catalog manifest
         working-directory: main-branch
         run: |
           set -euo pipefail

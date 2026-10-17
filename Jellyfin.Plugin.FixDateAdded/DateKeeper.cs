@@ -15,7 +15,6 @@ using Microsoft.Extensions.Hosting;
 
 namespace Jellyfin.Plugin.FixDateAdded;
 
-/// <summary>Remembers earliest DateCreated and restores it after upgrades.</summary>
 internal sealed class DateKeeper : IHostedService
 {
     private readonly ILibraryManager _libraryManager;
