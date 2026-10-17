@@ -13,6 +13,11 @@ Also:
 - Prefer deleting or not writing code over clever generality.
 - **Minimize entropy** — Prefer the existing pattern over a new one. Don’t introduce a second way to do the same thing, scatter one-off conventions, or leave dead/parallel paths. A change should leave the tree more uniform, not more varied.
 
+# Git
+
+- You may **commit** when the work is ready.
+- Do **not push**, open, or merge PRs unless explicitly asked.
+
 # Comments
 
 - Comments are rare and short: explain non-obvious *why*, never restate the code.
