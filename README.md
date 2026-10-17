@@ -69,10 +69,7 @@ branch protection so that PAT can push the catalog commit.
 ./tests/regression.sh
 ```
 
-Builds the plugin, runs it in a throwaway Jellyfin 10.11.10 container (no
-network), fakes upgrades, and checks dates. Includes a regression for the
-TMDb-vs-IMDb key mismatch (Piper-style folder move). Needs Docker and
-Python 3. CI runs this regression test on every pull request.
+Needs Docker and Python 3. CI runs this on every pull request.
 
 ## License
 

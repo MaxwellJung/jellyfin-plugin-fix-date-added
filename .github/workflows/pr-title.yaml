@@ -1,6 +1,5 @@
 name: pr title
 
-# Squash merges use the PR title; release-please needs conventional subjects.
 on:
   pull_request:
     types: [opened, edited, synchronize, reopened]
@@ -17,4 +16,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           requireScope: false
-

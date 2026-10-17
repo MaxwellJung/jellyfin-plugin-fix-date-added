@@ -467,8 +467,12 @@ dotnet_diagnostic.SA1512.severity = none
 # disable warning SA1515: Single-line comment should be preceded by blank line
 dotnet_diagnostic.SA1515.severity = none
 
+# disable warning SA0001: XML comment analysis is disabled due to project configuration
+dotnet_diagnostic.SA0001.severity = none
+
 # disable warning SA1600: Elements should be documented
 dotnet_diagnostic.SA1600.severity = none
+
 
 # disable warning SA1601: Partial elements should be documented
 dotnet_diagnostic.SA1601.severity = none
