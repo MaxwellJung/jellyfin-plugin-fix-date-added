@@ -1,8 +1,3 @@
----
-description: Prefer simplicity; no unrequested features or bloat
-alwaysApply: true
----
-
 # Keep it simple
 
 - Prefer the simplest design that works. No abstractions, helpers, options, or layers “for later.”
@@ -19,10 +14,10 @@ alwaysApply: true
 # Examples
 
 ```csharp
-// ❌ BAD — unrequested flexibility + noisy comments
+// BAD — unrequested flexibility + noisy comments
 /// <summary>Stores dates with optional multi-key strategies.</summary>
 public void Remember(string? keyA, string? keyB, DateTime? when = null) { /* ... */ }
 
-// ✅ GOOD — only what was asked
+// GOOD — only what was asked
 public void Remember(string key, DateTime dateCreated) { /* ... */ }
 ```
