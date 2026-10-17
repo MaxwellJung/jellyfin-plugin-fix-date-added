@@ -52,8 +52,8 @@ git tag v0.1.0
 git push origin v0.1.0
 ```
 
-CI builds the plugin, uploads a zip to a GitHub Release, and prepends that
-version to `manifest.json` on `main`.
+CI builds the plugin, uploads a zip to a GitHub Release, and opens a PR that
+prepends that version to `manifest.json` (merge it so the catalog updates).
 
 ## Test
 
