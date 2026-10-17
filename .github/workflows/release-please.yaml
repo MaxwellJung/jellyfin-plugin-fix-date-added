@@ -1,67 +1,63 @@
-name: release
+name: release-please
 
-# Publish a catalog version: git tag v1.2.3 && git push origin v1.2.3
+# Opens/updates a Release PR from conventional commits on main.
+# Merging that PR is the "release button": it tags, creates a GitHub Release,
+# then this workflow packages the Jellyfin plugin zip and opens a catalog PR.
 on:
   push:
-    tags: ['v*']
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Semver without v prefix (e.g. 1.2.3)'
-        required: true
-        type: string
+    branches: [main]
 
 permissions:
   contents: write
   pull-requests: write
+  issues: write
 
 env:
   TARGET_ABI: '10.11.10.0'
 
 jobs:
-  release:
+  release-please:
+    runs-on: ubuntu-24.04
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      version: ${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
+    steps:
+      - uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4.4.1
+        id: release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  publish-plugin:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.release-please.outputs.tag_name }}
 
       - uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5.0.0
         with:
           dotnet-version: '9.0.x'
 
-      - name: Resolve version
-        id: ver
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            VERSION="${{ inputs.version }}"
-            VERSION="${VERSION#v}"
-            TAG="v${VERSION}"
-          else
-            TAG="${GITHUB_REF_NAME}"
-            VERSION="${TAG#v}"
-          fi
-          # Jellyfin accepts System.Version; we standardize on semver major.minor.patch.
-          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Version must be semver major.minor.patch (got '$VERSION')" >&2
-            exit 1
-          fi
-          # AssemblyVersion wants up to four parts; pad patch releases as x.y.z.0
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "assembly=${VERSION}.0" >> "$GITHUB_OUTPUT"
-          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
-
       - name: Build
         run: |
+          VERSION="${{ needs.release-please.outputs.version }}"
           dotnet build Jellyfin.Plugin.FixDateAdded -c Release \
-            -p:Version="${{ steps.ver.outputs.version }}" \
-            -p:AssemblyVersion="${{ steps.ver.outputs.assembly }}" \
-            -p:FileVersion="${{ steps.ver.outputs.assembly }}" \
+            -p:Version="${VERSION}" \
+            -p:AssemblyVersion="${VERSION}.0" \
+            -p:FileVersion="${VERSION}.0" \
             -p:RestoreLockedMode=true -v q -nologo
 
       - name: Package
         id: pkg
         run: |
           set -euo pipefail
-          VERSION="${{ steps.ver.outputs.version }}"
+          VERSION="${{ needs.release-please.outputs.version }}"
+          TAG="${{ needs.release-please.outputs.tag_name }}"
           STAGE=$(mktemp -d)
           cp Jellyfin.Plugin.FixDateAdded/bin/Release/net9.0/Jellyfin.Plugin.FixDateAdded.dll "$STAGE/"
           jq --arg v "$VERSION" '.version=$v' meta.json > "$STAGE/meta.json"
@@ -69,32 +65,28 @@ jobs:
           (cd "$STAGE" && zip -q -r "$OLDPWD/$ZIP" .)
           echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
           echo "checksum=$(md5sum "$ZIP" | awk '{print $1}')" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Create GitHub release
-        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2.5.0
-        with:
-          tag_name: ${{ steps.ver.outputs.tag }}
-          name: ${{ steps.ver.outputs.tag }}
-          files: ${{ steps.pkg.outputs.zip }}
-          generate_release_notes: true
-          fail_on_unmatched_files: true
+      - name: Upload zip to GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ steps.pkg.outputs.tag }}" "${{ steps.pkg.outputs.zip }}" --clobber
 
       - name: Checkout main for manifest update
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: main
           path: main-branch
-          token: ${{ secrets.GITHUB_TOKEN }}
 
-      # main is PR-protected; open a short-lived PR instead of pushing directly.
       - name: Open PR to update manifest.json
         working-directory: main-branch
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          VERSION="${{ steps.ver.outputs.version }}"
-          TAG="${{ steps.ver.outputs.tag }}"
+          VERSION="${{ steps.pkg.outputs.version }}"
+          TAG="${{ steps.pkg.outputs.tag }}"
           CHKSUM="${{ steps.pkg.outputs.checksum }}"
           ZIP="${{ steps.pkg.outputs.zip }}"
           SOURCE_URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/${ZIP}"

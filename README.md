@@ -29,8 +29,6 @@ Dates are stored in
 
 3. **Catalog** → find **Fix Date Added** → Install → restart Jellyfin.
 
-Versions appear after a GitHub release is published (see below).
-
 ## Build and install manually
 
 Requires Jellyfin 10.11 and the .NET SDK.
@@ -42,18 +40,20 @@ dotnet build -c Release
 Copy `Jellyfin.Plugin.FixDateAdded/bin/Release/net9.0/Jellyfin.Plugin.FixDateAdded.dll`
 to a `FixDateAdded` folder in Jellyfin's `plugins` folder and restart Jellyfin.
 
-## Publish a release
+## Releases
 
-Tag a semver (`major.minor.patch`) and push (or run the **release** workflow
-manually):
+Releases use [release-please](https://github.com/googleapis/release-please)
+and [Conventional Commits](https://www.conventionalcommits.org/).
 
-```bash
-git tag v0.1.0
-git push origin v0.1.0
-```
+1. Open PRs whose **title** starts with `feat:`, `fix:`, `chore:`, etc.
+   (CI enforces this; squash merges use the PR title as the commit subject.)
+2. After merges to `main`, release-please opens or updates a **Release PR**.
+3. Merge that Release PR to cut the next semver tag and GitHub Release.
+4. CI then uploads the plugin zip to the Release and opens a short PR that
+   updates `manifest.json` — merge that so the Jellyfin catalog updates.
 
-CI builds the plugin, uploads a zip to a GitHub Release, and opens a PR that
-prepends that version to `manifest.json` (merge it so the catalog updates).
+`fix:` → patch, `feat:` → minor, `BREAKING CHANGE` / `feat!:` → major
+(while below 1.0.0, `feat` bumps minor and `fix` bumps patch by default).
 
 ## Test
 
