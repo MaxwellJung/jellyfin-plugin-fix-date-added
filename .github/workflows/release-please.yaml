@@ -2,7 +2,9 @@ name: release-please
 
 # Opens/updates a Release PR from conventional commits on main.
 # Merging that PR is the "release button": it tags, creates a GitHub Release,
-# then this workflow packages the Jellyfin plugin zip and opens a catalog PR.
+# then this workflow packages the Jellyfin plugin zip and pushes an updated
+# manifest.json to main (requires Allow github-actions[bot] to bypass
+# required pull requests on the main branch protection rule).
 on:
   push:
     branches: [main]
@@ -78,11 +80,10 @@ jobs:
         with:
           ref: main
           path: main-branch
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Open PR to update manifest.json
+      - name: Push manifest.json update to main
         working-directory: main-branch
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           VERSION="${{ steps.pkg.outputs.version }}"
@@ -91,7 +92,6 @@ jobs:
           ZIP="${{ steps.pkg.outputs.zip }}"
           SOURCE_URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/${ZIP}"
           TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-          BRANCH="chore/manifest-${TAG}"
           jq \
             --arg v "$VERSION" \
             --arg c "$CHKSUM" \
@@ -110,12 +110,10 @@ jobs:
           mv manifest.tmp manifest.json
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout -b "$BRANCH"
           git add manifest.json
+          if git diff --cached --quiet; then
+            echo "manifest.json already up to date for ${TAG}"
+            exit 0
+          fi
           git commit -m "chore: update manifest for ${TAG}"
-          git push -u origin "$BRANCH"
-          gh pr create --base main --head "$BRANCH" \
-            --title "chore: update manifest for ${TAG}" \
-            --body "Automated catalog update for release ${TAG}."
-          gh pr merge --squash --delete-branch || \
-            echo "Opened PR for manifest update; merge manually if branch protection blocks the bot."
+          git push origin HEAD:main

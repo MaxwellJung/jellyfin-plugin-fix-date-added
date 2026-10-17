@@ -49,8 +49,12 @@ and [Conventional Commits](https://www.conventionalcommits.org/).
    (CI enforces this; squash merges use the PR title as the commit subject.)
 2. After merges to `main`, release-please opens or updates a **Release PR**.
 3. Merge that Release PR to cut the next semver tag and GitHub Release.
-4. CI then uploads the plugin zip to the Release and opens a short PR that
-   updates `manifest.json` — merge that so the Jellyfin catalog updates.
+4. CI uploads the plugin zip and pushes a `manifest.json` update to `main`
+   so the Jellyfin catalog refreshes — no second PR.
+
+Branch protection on `main` must allow `github-actions[bot]` to **bypass
+required pull requests** (Settings → Branches → your `main` rule → Bypass
+list). Without that, step 4 fails after the zip upload.
 
 `fix:` → patch, `feat:` → minor, `BREAKING CHANGE` / `feat!:` → major
 (while below 1.0.0, `feat` bumps minor and `fix` bumps patch by default).
