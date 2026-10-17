@@ -8,26 +8,6 @@ Status: experimental — use at your own risk.
 
 > **Note:** This plugin is heavily vibe coded. Treat it accordingly.
 
-## How it works
-
-Jellyfin treats an upgraded file (new filename) as a new item with a new
-date added. Fix Date Added records the earliest date added it has seen for
-each title when Jellyfin removes or updates a movie or episode, and restores
-that date when a replacement shows up newer. Titles are keyed by every
-stable id Jellyfin exposes (IMDb, TMDb, and episode series+season+episode
-keys).
-
-Dates are stored in
-`plugins/configurations/Jellyfin.Plugin.FixDateAdded.json`.
-
-Only upgrades that happen **after** the plugin is installed are covered.
-Media upgraded before install is unaffected (those titles were never recorded).
-To cover older upgrades, you can prepopulate
-`Jellyfin.Plugin.FixDateAdded.json` yourself (map stable ids → earliest
-dates). Building that seed is **out of scope** for this plugin; use a small
-script (e.g. Python) if you need it. Sample Radarr/Sonarr seed scripts:
-[#22](https://github.com/MaxwellJung/jellyfin-plugin-fix-date-added/issues/22).
-
 ## Install from catalog
 
 1. In Jellyfin: **Dashboard → Plugins → Repositories → +**
@@ -49,6 +29,26 @@ dotnet build -c Release
 
 Copy `Jellyfin.Plugin.FixDateAdded/bin/Release/net9.0/Jellyfin.Plugin.FixDateAdded.dll`
 to a `FixDateAdded` folder in Jellyfin's `plugins` folder and restart Jellyfin.
+
+## How it works
+
+Jellyfin treats an upgraded file (new filename) as a new item with a new
+date added. Fix Date Added records the earliest date added it has seen for
+each title when Jellyfin removes or updates a movie or episode, and restores
+that date when a replacement shows up newer. Titles are keyed by every
+stable id Jellyfin exposes (IMDb, TMDb, and episode series+season+episode
+keys).
+
+Dates are stored in
+`plugins/configurations/Jellyfin.Plugin.FixDateAdded.json`.
+
+Only upgrades that happen **after** the plugin is installed are covered.
+Media upgraded before install is unaffected (those titles were never recorded).
+To cover older upgrades, you can prepopulate
+`Jellyfin.Plugin.FixDateAdded.json` yourself (map stable ids → earliest
+dates). Building that seed is **out of scope** for this plugin; use a small
+script (e.g. Python) if you need it. Sample Radarr/Sonarr seed scripts:
+[#22](https://github.com/MaxwellJung/jellyfin-plugin-fix-date-added/issues/22).
 
 ## Releases
 
