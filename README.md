@@ -22,6 +22,10 @@ Dates are stored in
 
 Only upgrades that happen **after** the plugin is installed are covered.
 Media upgraded before install is unaffected (those titles were never recorded).
+To cover older upgrades, you can prepopulate
+`Jellyfin.Plugin.FixDateAdded.json` yourself (map stable ids → earliest
+dates). Building that seed is **out of scope** for this plugin; use a small
+script (e.g. Python against Jellyfin’s API or library DB) if you need it.
 
 ## Install from catalog
 
