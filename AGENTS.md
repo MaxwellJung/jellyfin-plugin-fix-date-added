@@ -1,6 +1,6 @@
 # Keep it simple
 
-Follow Musk’s [Algorithm](https://www.elonmuskbook.org/the-book-of-elon-musk-free-online-version/the-algorithm) **in order** (at least these two):
+Apply these **in order**:
 
 1. **Delete the part or process** — Prefer removing code, steps, options, and workflows over keeping them “just in case.” If we never have to put something back, we probably aren’t deleting enough.
 2. **Simplify or optimize** — Only after deletion. Do not polish or speed up something that should not exist.
