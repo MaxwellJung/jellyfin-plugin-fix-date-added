@@ -54,29 +54,14 @@ and [Conventional Commits](https://www.conventionalcommits.org/).
 4. CI uploads the plugin zip and pushes a `manifest.json` update to `main`
    so the Jellyfin catalog refreshes — one merge is the whole release.
 
-release-please always uses **3-part semver** in git (`0.1.1`, tag `v0.1.1`).
-At publish time CI maps that to Jellyfin’s **4-part** form (`0.1.1.0`) for the
-assembly, zip `meta.json`, and catalog entry only — so uninstall matches the
-installed folder.
+Git keeps 3-part semver (`v0.1.1`); publish writes Jellyfin 4-part (`0.1.1.0`).
 
-### One-time setup (personal repo)
+One-time: fine-grained PAT (Contents + Pull requests read/write) as secret
+`RELEASE_PLEASE_TOKEN`, and uncheck **Include administrators** on `main`
+branch protection so that PAT can push the catalog commit.
 
-GitHub does not let `github-actions[bot]` bypass required PRs on user-owned
-repos, so releases use an owner PAT:
-
-1. Create a **fine-grained personal access token**
-   (https://github.com/settings/personal-access-tokens) for this repository
-   only, with **Contents: Read and write** and **Pull requests: Read and
-   write**. Set an expiry you’ll remember to rotate.
-2. Add it as a repository secret named `RELEASE_PLEASE_TOKEN`
-   (Settings → Secrets and variables → Actions).
-3. On the `main` branch protection rule, **uncheck “Include
-   administrators”** so that PAT can push the catalog commit. Everyone else
-   still needs a PR; only admins (and that token acting as you) can bypass.
-
-`fix:` → patch, `feat:` → minor, `BREAKING CHANGE` / `feat!:` → major.
-While below 1.0.0, `feat` also bumps **patch** and breaking changes bump
-**minor** (`bump-patch-for-minor-pre-major` / `bump-minor-pre-major`).
+`fix:` → patch, `feat:` → minor, `BREAKING CHANGE` → major. Below 1.0.0,
+`feat` bumps patch and breaking bumps minor.
 
 ## Test
 

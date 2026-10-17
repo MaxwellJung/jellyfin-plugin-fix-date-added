@@ -1,19 +1,8 @@
 name: release-please
 
-# Opens/updates a Release PR from conventional commits on main.
-# Merging that PR is the "release button": it tags, creates a GitHub Release,
-# then this workflow packages the Jellyfin plugin zip and pushes an updated
-# manifest.json to main. Needs secret RELEASE_PLEASE_TOKEN (fine-grained PAT)
-# and branch protection with "Include administrators" disabled so that PAT
-# can push the catalog commit to main on a personal repo.
-#
-# Versioning contract:
-#   - release-please owns 3-part semver everywhere in git (tags vX.Y.Z,
-#     .release-please-manifest.json, Directory.Build.props Version, build.yaml,
-#     meta.json). It never sees 4-part versions.
-#   - Jellyfin needs 4-part versions for install/uninstall. At publish time we
-#     derive JF_VERSION="${VERSION}.0" (e.g. 0.1.1 → 0.1.1.0) for the assembly,
-#     zip meta.json, zip name, and catalog manifest.json only.
+# Merge the Release PR to tag + GitHub Release; then this job zips the plugin
+# and pushes catalog manifest.json (needs RELEASE_PLEASE_TOKEN; admins not
+# enforced on main). Git keeps 3-part semver; publish maps to Jellyfin X.Y.Z.0.
 on:
   push:
     branches: [main]
@@ -32,13 +21,11 @@ jobs:
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
-      # Prefer the action's semver output; fall back to major.minor.patch.
-      version: ${{ steps.release.outputs.version || format('{0}.{1}.{2}', steps.release.outputs.major, steps.release.outputs.minor, steps.release.outputs.patch) }}
+      version: ${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
     steps:
       - uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4.4.1
         id: release
         with:
-          # Owner PAT so Release PRs get CI and the catalog push can land on main.
           token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
@@ -61,15 +48,12 @@ jobs:
         run: |
           set -euo pipefail
           VERSION="${{ needs.release-please.outputs.version }}"
-          # Guard: only append .0 to strict X.Y.Z so we never produce X.Y.Z.0.0
           if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Expected release-please 3-part semver (X.Y.Z), got: ${VERSION}" >&2
+            echo "Expected 3-part semver X.Y.Z, got: ${VERSION}" >&2
             exit 1
           fi
-          JF_VERSION="${VERSION}.0"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "jf_version=${JF_VERSION}" >> "$GITHUB_OUTPUT"
-          echo "Using semver ${VERSION} → Jellyfin ${JF_VERSION}"
+          echo "jf_version=${VERSION}.0" >> "$GITHUB_OUTPUT"
 
       - name: Build
         run: |
@@ -90,7 +74,6 @@ jobs:
           TAG="${{ needs.release-please.outputs.tag_name }}"
           STAGE=$(mktemp -d)
           cp Jellyfin.Plugin.FixDateAdded/bin/Release/net9.0/Jellyfin.Plugin.FixDateAdded.dll "$STAGE/"
-          # meta.json in git stays 3-part for release-please; zip gets 4-part.
           jq --arg v "$JF_VERSION" '.version=$v' meta.json > "$STAGE/meta.json"
           ZIP="Jellyfin.Plugin.FixDateAdded_${JF_VERSION}.zip"
           (cd "$STAGE" && zip -q -r "$OLDPWD/$ZIP" .)
