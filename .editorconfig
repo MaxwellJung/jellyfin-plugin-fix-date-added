@@ -165,11 +165,13 @@ csharp_style_inlined_variable_declaration = true:suggestion
 ###############################
 # C# Formatting Rules         #
 ###############################
+# K&R braces + 2-space indent (see #14)
+indent_size = 2
 # New line preferences
-csharp_new_line_before_open_brace = all
-csharp_new_line_before_else = true
-csharp_new_line_before_catch = true
-csharp_new_line_before_finally = true
+csharp_new_line_before_open_brace = none
+csharp_new_line_before_else = false
+csharp_new_line_before_catch = false
+csharp_new_line_before_finally = false
 csharp_new_line_before_members_in_object_initializers = true
 csharp_new_line_before_members_in_anonymous_types = true
 csharp_new_line_between_query_expression_clauses = true
@@ -470,12 +472,15 @@ dotnet_diagnostic.SA1515.severity = none
 # disable warning SA0001: XML comment analysis is disabled due to project configuration
 dotnet_diagnostic.SA0001.severity = none
 
+# K&R: allow `{` on the same line as the statement (see #14)
+dotnet_diagnostic.SA1500.severity = none
+
 # disable warning SA1600: Elements should be documented
 dotnet_diagnostic.SA1600.severity = none
 
-
 # disable warning SA1601: Partial elements should be documented
 dotnet_diagnostic.SA1601.severity = none
+
 
 # disable warning SA1602: Enumeration items should be documented
 dotnet_diagnostic.SA1602.severity = none
