@@ -25,7 +25,8 @@ Media upgraded before install is unaffected (those titles were never recorded).
 To cover older upgrades, you can prepopulate
 `Jellyfin.Plugin.FixDateAdded.json` yourself (map stable ids → earliest
 dates). Building that seed is **out of scope** for this plugin; use a small
-script (e.g. Python against Jellyfin’s API or library DB) if you need it.
+script (e.g. Python) if you need it. Sample Radarr/Sonarr seed scripts:
+[#22](https://github.com/MaxwellJung/jellyfin-plugin-fix-date-added/issues/22).
 
 ## Install from catalog
 
