@@ -1,5 +1,12 @@
 # Keep it simple
 
+Follow Musk’s [Algorithm](https://www.elonmuskbook.org/the-book-of-elon-musk-free-online-version/the-algorithm) **in order** (at least these two):
+
+1. **Delete the part or process** — Prefer removing code, steps, options, and workflows over keeping them “just in case.” If we never have to put something back, we probably aren’t deleting enough.
+2. **Simplify or optimize** — Only after deletion. Do not polish or speed up something that should not exist.
+
+Also:
+
 - Prefer the simplest design that works. No abstractions, helpers, options, or layers “for later.”
 - Only implement what was explicitly requested. Do not add extras (telemetry, configurability, polish, alternate code paths, speculative error handling).
 - If something extra seems necessary, **ask and get confirmation before adding it** to the codebase.
