@@ -1,17 +1,16 @@
----
-name: "Fix Date Added"
-guid: "f5e69279-adee-4c33-b4a3-424f09e07ce4"
-version: "0.1.0"
-targetAbi: "10.11.10.0"
-framework: "net9.0"
-overview: "Keep original Date added across Radarr/Sonarr file upgrades"
+name: Fix Date Added
+guid: f5e69279-adee-4c33-b4a3-424f09e07ce4
+version: 0.1.1
+targetAbi: 10.11.10.0
+framework: net9.0
+overview: Keep original Date added across Radarr/Sonarr file upgrades
 description: >
-  Remembers the earliest Date added for each movie and episode and restores
-  it when an upgrade replaces the file, so upgrades do not jump to the top
-  of Recently Added.
-category: "General"
-owner: "MaxwellJung"
+  Remembers the earliest Date added for each movie and episode and restores it
+  when an upgrade replaces the file, so upgrades do not jump to the top of
+  Recently Added.
+category: General
+owner: MaxwellJung
 artifacts:
-- "Jellyfin.Plugin.FixDateAdded.dll"
-changelog: >
+  - Jellyfin.Plugin.FixDateAdded.dll
+changelog: |
   See GitHub releases.
