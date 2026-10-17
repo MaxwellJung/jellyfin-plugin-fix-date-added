@@ -4,10 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Jellyfin.Plugin.FixDateAdded;
 
-/// <summary>DI registration for the plugin.</summary>
-public class ServiceRegistrator : IPluginServiceRegistrator
-{
-    /// <inheritdoc />
+public class ServiceRegistrator : IPluginServiceRegistrator {
     public void RegisterServices(IServiceCollection serviceCollection, IServerApplicationHost applicationHost)
         => serviceCollection.AddHostedService<DateKeeper>();
 }

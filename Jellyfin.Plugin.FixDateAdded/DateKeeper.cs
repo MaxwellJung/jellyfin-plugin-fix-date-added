@@ -15,15 +15,12 @@ using Microsoft.Extensions.Hosting;
 
 namespace Jellyfin.Plugin.FixDateAdded;
 
-/// <summary>Remembers earliest DateCreated and restores it after upgrades.</summary>
-internal sealed class DateKeeper : IHostedService
-{
+internal sealed class DateKeeper : IHostedService {
     private readonly ILibraryManager _libraryManager;
     private readonly string _path;
     private readonly Dictionary<string, DateTime> _dates;
 
-    public DateKeeper(ILibraryManager libraryManager, IApplicationPaths paths)
-    {
+    public DateKeeper(ILibraryManager libraryManager, IApplicationPaths paths) {
         _libraryManager = libraryManager;
         _path = Path.Combine(paths.PluginConfigurationsPath, "Jellyfin.Plugin.FixDateAdded.json");
         _dates = File.Exists(_path)
@@ -31,15 +28,13 @@ internal sealed class DateKeeper : IHostedService
             : new();
     }
 
-    public Task StartAsync(CancellationToken cancellationToken)
-    {
+    public Task StartAsync(CancellationToken cancellationToken) {
         _libraryManager.ItemUpdated += OnItemUpdated;
         _libraryManager.ItemRemoved += OnItemRemoved;
         return Task.CompletedTask;
     }
 
-    public Task StopAsync(CancellationToken cancellationToken)
-    {
+    public Task StopAsync(CancellationToken cancellationToken) {
         _libraryManager.ItemUpdated -= OnItemUpdated;
         _libraryManager.ItemRemoved -= OnItemRemoved;
         Save();
@@ -48,18 +43,15 @@ internal sealed class DateKeeper : IHostedService
 
     private void OnItemRemoved(object? sender, ItemChangeEventArgs e) => Remember(e.Item);
 
-    private void OnItemUpdated(object? sender, ItemChangeEventArgs e)
-    {
+    private void OnItemUpdated(object? sender, ItemChangeEventArgs e) {
         var item = e.Item;
         var keys = Remember(item);
-        if (keys.Count == 0)
-        {
+        if (keys.Count == 0) {
             return;
         }
 
         var firstAdded = keys.Min(k => _dates[k]);
-        if (firstAdded >= item.DateCreated)
-        {
+        if (firstAdded >= item.DateCreated) {
             return;
         }
 
@@ -67,10 +59,8 @@ internal sealed class DateKeeper : IHostedService
         item.UpdateToRepositoryAsync(ItemUpdateType.MetadataEdit, CancellationToken.None).GetAwaiter().GetResult();
     }
 
-    private List<string> Remember(BaseItem item)
-    {
-        if (item is not (Movie or Episode))
-        {
+    private List<string> Remember(BaseItem item) {
+        if (item is not (Movie or Episode)) {
             return [];
         }
 
@@ -82,22 +72,18 @@ internal sealed class DateKeeper : IHostedService
             .Select(static k => k!)
             .Distinct(StringComparer.Ordinal)
             .ToList();
-        if (keys.Count == 0)
-        {
+        if (keys.Count == 0) {
             return keys;
         }
 
         var earliest = item.DateCreated;
-        foreach (var key in keys)
-        {
-            if (_dates.TryGetValue(key, out var existing) && existing < earliest)
-            {
+        foreach (var key in keys) {
+            if (_dates.TryGetValue(key, out var existing) && existing < earliest) {
                 earliest = existing;
             }
         }
 
-        foreach (var key in keys)
-        {
+        foreach (var key in keys) {
             _dates[key] = earliest;
         }
 

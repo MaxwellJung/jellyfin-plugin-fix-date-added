@@ -7,11 +7,6 @@
       "bump-patch-for-minor-pre-major": true,
       "extra-files": [
         {
-          "type": "json",
-          "path": "meta.json",
-          "jsonpath": "$.version"
-        },
-        {
           "type": "yaml",
           "path": "build.yaml",
           "jsonpath": "$.version"
