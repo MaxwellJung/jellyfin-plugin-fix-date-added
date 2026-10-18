@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/MaxwellJung/jellyfin-plugin-fix-date-added/compare/v0.1.2...v0.1.3) (2026-10-18)
+
+
+### Bug Fixes
+
+* quarantine corrupt date store so Jellyfin still boots ([#30](https://github.com/MaxwellJung/jellyfin-plugin-fix-date-added/issues/30)) ([d2611dd](https://github.com/MaxwellJung/jellyfin-plugin-fix-date-added/commit/d2611dd4c71046b65f1e2c7c6874a6e5243355d0))
+
 ## [0.1.2](https://github.com/MaxwellJung/jellyfin-plugin-fix-date-added/compare/v0.1.1...v0.1.2) (2026-10-17)
 
 
