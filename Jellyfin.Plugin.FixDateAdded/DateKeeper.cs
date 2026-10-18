@@ -31,13 +31,19 @@ internal sealed class DateKeeper : IHostedService {
 
         try {
             _dates = JsonSerializer.Deserialize<Dictionary<string, DateTime>>(File.ReadAllText(_path)) ?? new();
-        } catch (Exception ex) {
+        } catch (JsonException ex) {
+            OnBadStore(ex);
+        } catch (IOException ex) {
+            OnBadStore(ex);
+        }
+
+        void OnBadStore(Exception ex) {
             logger.LogError(ex, "Failed to load {Path}; starting with an empty store", _path);
             try {
                 var quarantine = _path + ".corrupt";
                 File.Move(_path, quarantine, overwrite: true);
                 logger.LogWarning("Moved unreadable store to {Quarantine}", quarantine);
-            } catch (Exception moveEx) {
+            } catch (IOException moveEx) {
                 logger.LogWarning(moveEx, "Could not quarantine unreadable store at {Path}", _path);
             }
         }
