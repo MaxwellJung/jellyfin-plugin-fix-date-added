@@ -8,6 +8,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "0.1.2.0",
+        "changelog": "See GitHub release notes.",
+        "targetAbi": "10.11.10.0",
+        "sourceUrl": "https://github.com/MaxwellJung/jellyfin-plugin-fix-date-added/releases/download/v0.1.2/Jellyfin.Plugin.FixDateAdded_0.1.2.0.zip",
+        "checksum": "169a374e66e8f1ad2638640be44d0f51",
+        "timestamp": "2026-10-18T00:15:36Z"
+      },
+      {
         "version": "0.1.1.0",
         "changelog": "See GitHub release notes.",
         "targetAbi": "10.11.10.0",
