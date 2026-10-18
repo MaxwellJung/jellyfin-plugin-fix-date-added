@@ -179,4 +179,18 @@ refresh
 wait_for "Piper restored via ItemRemoved only" date_is Piper.2160p.mkv "$piper_date"
 echo "PASS E"
 
+echo "=== F: corrupt store does not block startup (#2)"
+docker stop "$name" >/dev/null
+docker run --rm -v "$work/config:/config" --entrypoint sh "$jellyfin_image" -c \
+    'printf not-json >/config/plugins/configurations/Jellyfin.Plugin.FixDateAdded.json'
+docker start "$name" >/dev/null
+wait_for "Jellyfin after corrupt store" up
+wait_for "corrupt store quarantined" test -f "$store.corrupt"
+grep -qx not-json "$store.corrupt" || fail "quarantined store should keep the unreadable bytes"
+replace "$movie/Fight.Club.2160p.mkv" "$movie/Fight.Club.HDR.mkv"
+refresh
+wait_for "movie date after corrupt store" date_is Fight.Club.HDR.mkv "$movie_date"
+grep -qx not-json "$store.corrupt" || fail "quarantine must not be overwritten by Save"
+echo "PASS F"
+
 echo "ALL PASS"
