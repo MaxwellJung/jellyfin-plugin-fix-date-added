@@ -12,6 +12,7 @@ using MediaBrowser.Controller.Entities.TV;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Model.Entities;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Jellyfin.Plugin.FixDateAdded;
 
@@ -20,12 +21,26 @@ internal sealed class DateKeeper : IHostedService {
     private readonly string _path;
     private readonly Dictionary<string, DateTime> _dates;
 
-    public DateKeeper(ILibraryManager libraryManager, IApplicationPaths paths) {
+    public DateKeeper(ILibraryManager libraryManager, IApplicationPaths paths, ILogger<DateKeeper> logger) {
         _libraryManager = libraryManager;
         _path = Path.Combine(paths.PluginConfigurationsPath, "Jellyfin.Plugin.FixDateAdded.json");
-        _dates = File.Exists(_path)
-            ? JsonSerializer.Deserialize<Dictionary<string, DateTime>>(File.ReadAllText(_path)) ?? new()
-            : new();
+        _dates = new();
+        if (!File.Exists(_path)) {
+            return;
+        }
+
+        try {
+            _dates = JsonSerializer.Deserialize<Dictionary<string, DateTime>>(File.ReadAllText(_path)) ?? new();
+        } catch (Exception ex) {
+            logger.LogError(ex, "Failed to load {Path}; starting with an empty store", _path);
+            try {
+                var quarantine = _path + ".corrupt";
+                File.Move(_path, quarantine, overwrite: true);
+                logger.LogWarning("Moved unreadable store to {Quarantine}", quarantine);
+            } catch (Exception moveEx) {
+                logger.LogWarning(moveEx, "Could not quarantine unreadable store at {Path}", _path);
+            }
+        }
     }
 
     public Task StartAsync(CancellationToken cancellationToken) {
