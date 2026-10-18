@@ -216,9 +216,10 @@ docker start "$name" >/dev/null
 wait_for "Jellyfin after corrupt store" up
 wait_for "corrupt store quarantined" test -f "$store.corrupt"
 grep -qx not-json "$store.corrupt" || fail "quarantined store should keep the unreadable bytes"
-replace "$movie/Fight.Club.2160p.mkv" "$movie/Fight.Club.HDR.mkv"
+fight_dir="movies/Fight Club (1999) [tmdbid-550]"
+replace "$fight_dir/Fight.Club.2160p.mkv" "$fight_dir/Fight.Club.HDR.mkv"
 refresh
-wait_for "movie date after corrupt store" date_is Fight.Club.HDR.mkv "$movie_date"
+wait_for "movie date after corrupt store" date_is Fight.Club.HDR.mkv "$(cat "$work/dates/Fight.Club")"
 grep -qx not-json "$store.corrupt" || fail "quarantine must not be overwritten by Save"
 echo "PASS F"
 
