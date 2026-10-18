@@ -103,6 +103,7 @@ auth="$auth, Token=\"$token\""
 dual="movies/Piper (2016) [tmdbid-399106][imdbid-tt5613056]"
 imdb_only="movies/Piper (2016) [imdbid-tt5613056]"
 matrix="movies/The Matrix (1999) [tmdbid-603]"
+fight_club="movies/Fight Club (1999) [tmdbid-550]"
 
 # Same-folder upgrade cohort: dir|stem|store_key (720p → 1080p → 2160p).
 cohort=(
@@ -216,8 +217,7 @@ docker start "$name" >/dev/null
 wait_for "Jellyfin after corrupt store" up
 wait_for "corrupt store quarantined" test -f "$store.corrupt"
 grep -qx not-json "$store.corrupt" || fail "quarantined store should keep the unreadable bytes"
-fight_dir="movies/Fight Club (1999) [tmdbid-550]"
-replace "$fight_dir/Fight.Club.2160p.mkv" "$fight_dir/Fight.Club.HDR.mkv"
+replace "$fight_club/Fight.Club.2160p.mkv" "$fight_club/Fight.Club.HDR.mkv"
 refresh
 wait_for "movie date after corrupt store" date_is Fight.Club.HDR.mkv "$(cat "$work/dates/Fight.Club")"
 grep -qx not-json "$store.corrupt" || fail "quarantine must not be overwritten by Save"
