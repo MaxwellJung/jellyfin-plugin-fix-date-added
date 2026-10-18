@@ -1,8 +1,7 @@
 # Fix Date Added
 
-A Jellyfin plugin that keeps a movie's or episode's original "Date added"
-when Radarr or Sonarr upgrade its file, so upgrades don't jump to the top of
-"Recently Added". Plex behaves this way already.
+Makes Jellyfin's "Date added" behave like Plex: when Radarr or Sonarr
+upgrades a file, the original date is kept so it stays out of "Recently Added".
 
 Status: experimental — use at your own risk.
 
